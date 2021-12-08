@@ -1,3 +1,7 @@
+const MARGIN = {LEFT: 100, RIGHT: 10, TOP: 10, BOTTOM: 130}
+const WIDTH = 600 - MARGIN.LEFT - MARGIN.RIGHT
+const HEIGHT = 400 - MARGIN.TOP - MARGIN.BOTTOM
+
 d3.json("data/buildings.json").then(data => {
 
   data.forEach(d => {
@@ -7,25 +11,72 @@ d3.json("data/buildings.json").then(data => {
 
   const x = d3.scaleBand()
     .domain(data.map(d => d.name))
-    .range([0, 400])
+    .range([0, WIDTH])
     .paddingInner(0.2)
     .paddingOuter(0.2)
 
   const y = d3.scaleLinear()
     .domain([0, d3.max(data, d => d.height)])
-    .range([0, 400])
+    .range([HEIGHT, 0])
+
+
 
   const svg = d3.select("#chart-area").append("svg")
-    .attr("width", 500)
-    .attr("height", 500)
+    .attr("width", WIDTH + MARGIN.LEFT + MARGIN.RIGHT)
+    .attr("height", HEIGHT + MARGIN.TOP + MARGIN.BOTTOM)
+
+  const g = svg.append("g")
+  .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
+
+  g.append("text")
+  .attr("class", "x axis-label")
+  .attr("x", WIDTH / 2)
+  .attr("y", HEIGHT + 110)
+  .attr("font-size", "20px")
+  .attr("text-anchor", "middle")
+  .style('fill', 'lightGray')
+  .text("The word's tallest buildings")
+  
+  g.append("text")
+  .attr("class", "y axis-label")
+  .attr("x", - (HEIGHT / 2))
+  .attr("y", -60)
+  .attr("font-size", "20px")
+  .attr("text-anchor", "middle")
+  .attr("transform", "rotate(-90)")
+  .style('fill', 'lightGray')
+  .text("Height(m)")
+  
+  const xAxisCall = d3.axisBottom(x)
+  g.append("g")
+  .attr("class", "x axis")
+  .attr("transform", `translate(0, ${HEIGHT})`)
+  .call(xAxisCall)
+  .selectAll("text")
+    .attr("y", "10")
+    .attr("x", "-5")
+    .attr("text-anchor", "end")
+    .attr("transform", "rotate(-40)")
+
+  // X Label
+  
+
+  const yAxisCall = d3.axisLeft(y)
+  .ticks(3)
+  .tickFormat(d=>d+"m")
+  g.append("g")
+  .attr("class", "y axis")
+  .call(yAxisCall)
 
 
-  const circles = svg.selectAll("rect").data(data)
+
+  const circles = g.selectAll("rect").data(data)
 
   circles.enter().append("rect")
-    .attr("height", (d, i) => (y(d.height)))
+    .attr("height", (d, i) => (HEIGHT - y(d.height)))
     .attr("width", x.bandwidth)
     .attr("x", (d) => x(d.name))
+    .attr("y", (d) => y(d.height))
     .attr("fill", (d) => {
       if (d.name == "Burj Khalifa") {
         return "darkgray"
@@ -34,14 +85,6 @@ d3.json("data/buildings.json").then(data => {
         return "gray"
       }
     })
-
-
-  // svg.append("line")
-  // .attr("x1", 100)
-  // .attr("y1", 250)
-  // .attr("x2", 350)
-  // .attr("y2", 100)
-  // .attr("stroke", "gray")
 
 }).catch(error => {
   console.log(error)

@@ -6,6 +6,6 @@ body {
   justify-content: center;
   align-items: center;
   
-  border: 2px solid lightgrey;
-  color: lightgrey;
+  /* border: 2px solid lightgrey; */
+  color: white
 }
